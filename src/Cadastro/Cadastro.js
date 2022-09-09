@@ -23,8 +23,8 @@ export default function Cadastro(){
         }
         setCorCadastrar(0.6);
         setDisableForm(true);
-        console.log(cadastro);
         const promise = postCadastro(cadastro);
+        console.log(cadastro);
         promise.then(Autorizado);
         promise.catch(Desautorizado);
     }
@@ -36,10 +36,16 @@ export default function Cadastro(){
         navigate('/') ;      
     }
     
-    function Desautorizado(){
-        alert('Dados inválidos');
+    function Desautorizado(error){
+        if(error.response.data === undefined){
+            alert('Error: unhable to connect to server');
+        }
+        else{
+        console.log(error);
+        alert(error.response.data);
         setCorCadastrar(1);
         setDisableForm(false);
+        }
     }
 
     return (

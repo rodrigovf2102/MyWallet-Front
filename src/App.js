@@ -5,22 +5,26 @@ import Cadastro from './Cadastro/Cadastro';
 import Operacao from './Operacao/Operacao';
 import Saldo from './Saldo/Saldo';
 import { useState } from 'react';
+import UserContext from './context/UserContext';
 
 
 export default function App() {
-    const [operationType,setOperationType] = useState('');
+    const [tasks, setTasks] = useState({})
+    const [operationType, setOperationType] = useState('');
 
 
     return (
         <>
             <GlobalStyles />
             <BrowserRouter>
-                <Routes>
-                    <Route path={"/"} element={<Login />} />
-                    <Route path={"/cadastro"} element={<Cadastro />} />
-                    <Route path={"/saldo"} element={<Saldo setOperationType={setOperationType} />} />
-                    <Route path={"/operacao"} element={<Operacao operationType={operationType}/>} />
-                </Routes>
+                <UserContext.Provider value={{ tasks, setTasks }}>
+                    <Routes>
+                        <Route path={"/"} element={<Login />} />
+                        <Route path={"/cadastro"} element={<Cadastro />} />
+                        <Route path={"/saldo"} element={<Saldo setOperationType={setOperationType} />} />
+                        <Route path={"/operacao"} element={<Operacao operationType={operationType} />} />
+                    </Routes>
+                </UserContext.Provider>
             </BrowserRouter>
         </>
     );

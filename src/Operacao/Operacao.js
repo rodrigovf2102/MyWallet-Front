@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { Form, Input, Entrar, Cadastrar } from '../Login/Login';
 import { Grid } from 'react-loader-spinner';
 import { useNavigate } from 'react-router-dom';
 import { postOperacao } from '../Services/MyWallet';
+import UserContext from '../context/UserContext';
 
 export default function Operacao({ operationType }) {
 
@@ -11,6 +12,13 @@ export default function Operacao({ operationType }) {
     const [disableForm, setDisableForm] = useState(false);
     const [corOperacao, setCorOperacao] = useState(1);
     const navigate = useNavigate();
+    const { tasks, setTasks } = useContext(UserContext);   
+
+    const config = {
+        headers: {
+            "Authorization": `Bearer ${tasks}`
+        }
+    }
 
     function operacaoInfo(event) {
         event.preventDefault();
@@ -19,19 +27,26 @@ export default function Operacao({ operationType }) {
     function addOperacao() {
         setCorOperacao(0.6);
         setDisableForm(true);
-        const promisse = postOperacao(operacao);
+        const promisse = postOperacao(operacao,config);
         promisse.then(autorizado);
         promisse.catch(desautorizado);
     }
 
-    function desautorizado() {
-        alert("Valor ou descrição inválidos");
+    function desautorizado(error) {
+        if (error.response.data === undefined) {
+            alert('Error: unhable to connect to server');
+        }
+        else {
+            alert(error.response.data);
+            if (error.response.data.indexOf('token')!==-1) {
+                navigate('/');
+            }
+        }
         setCorOperacao(1);
         setDisableForm(false);
     }
 
-    function autorizado(response) {
-        console.log(response.data)
+    function autorizado() {
         setDisableForm(false);
         setCorOperacao(1);
         navigate('/Saldo');

@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { postLogin } from '../Services/MyWallet';
 import { Grid } from 'react-loader-spinner';
 import { Link, useNavigate } from 'react-router-dom';
+import UserContext from '../context/UserContext';
 
 export default function Login() {
 
-    const [ login, setLogin ] = useState({ email: "", password: "" });
+    const [ login, setLogin ] = useState({ email: "", senha: "" });
     const [corEntrar, setCorEntrar] = useState(1)
     const [disableForm, setDisableForm] = useState(false);
+    const { tasks, setTasks } = useContext(UserContext);
     const navigate = useNavigate();
 
     function loginInfo(event) {
@@ -23,14 +25,19 @@ export default function Login() {
         promisse.catch(desautorizado);
     }
 
-    function desautorizado() {
-        alert("Usuário ou senha incorreto(s)");
+    function desautorizado(error) {
+        if(error.response.data === undefined){
+            alert('Error: unhable to connect to server');
+        }
+        else{
+        alert(error.response.data);
         setCorEntrar(1);
         setDisableForm(false);
+        }
     }
 
     function autorizado(response) {
-        console.log(response.data)
+        setTasks(response.data)
         setDisableForm(false);
         setCorEntrar(1);
         navigate('/Saldo');    
@@ -42,7 +49,7 @@ export default function Login() {
             <Form onSubmit={loginInfo}>
                 <Input type="text" placeholder=' E-mail' onChange={event => setLogin({ ...login, email: event.target.value })}
                     disabled={disableForm} required />
-                <Input type="password" placeholder=' Senha' onChange={event => setLogin({ ...login, password: event.target.value })}
+                <Input type="password" placeholder=' Senha' onChange={event => setLogin({ ...login, senha: event.target.value })}
                     disabled={disableForm} required />
                 <Entrar cor={corEntrar} onClick={Login} disabled={disableForm} type="submit">
                     {disableForm ? <Grid color='white' radius="8" heigth="100" /> : "Entrar"}
