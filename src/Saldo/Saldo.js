@@ -1,19 +1,18 @@
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useContext } from 'react';
-import dayjs from 'dayjs';
-import { getOperacao, getUser } from '../Services/MyWallet';
+import { getOperacao, getUser, deleteOperacao } from '../Services/MyWallet';
 import UserContext from '../context/UserContext';
 
-export default function Saldo({ setOperationType }) {
+export default function Saldo({ setOperationInfo }) {
 
     const navigate = useNavigate();
     const { tasks, setTasks } = useContext(UserContext);
-    const [operacoes, setOperacoes] = useState([ ])
+    const [operacoes, setOperacoes] = useState([])
     const [saldo, setSaldo] = useState(0);
     const [saldoCor, setSaldoCor] = useState(0);
     const [username, setUsername] = useState("");
-    
+
     const config = {
         headers: {
             "Authorization": `Bearer ${tasks}`
@@ -38,7 +37,7 @@ export default function Saldo({ setOperationType }) {
         }
         else {
             alert(error.response.data);
-            if (error.response.data.indexOf('token')!==-1) {
+            if (error.response.data.indexOf('token') !== -1) {
                 navigate('/');
             }
         }
@@ -47,7 +46,7 @@ export default function Saldo({ setOperationType }) {
     function autorizado(response) {
         setOperacoes(response.data);
     }
-    function autorizadoUser(response){
+    function autorizadoUser(response) {
         setUsername(response.data);
     }
 
@@ -68,7 +67,32 @@ export default function Saldo({ setOperationType }) {
         navigate('/')
     }
     function transfer(type) {
-        setOperationType(type);
+        const operation = {type:type,status:'Nova'}
+        setOperationInfo({...operation})
+    }
+    function deleteOperation(id){
+        if(window.confirm('Tem certeza que deseja apagar operação?'))
+        {
+        const operacao = {id:id};
+        const promisse = deleteOperacao(operacao,config);
+        promisse.then(autorizadoDelete);
+        promisse.catch(desautorizado);
+        }
+    }
+    function autorizadoDelete(){
+        const promisse = getOperacao(config);
+        promisse.then(autorizado);
+        promisse.catch(desautorizado);
+    }
+    function updateOperation(id,type){
+        if(type==='red'){
+            const operation = {type:'saída',status:'Editar',id:id}
+            setOperationInfo({...operation})
+        } else{
+            const operation = {type:'entrada',status:'Editar',id:id}
+            setOperationInfo({...operation})
+        }
+        navigate('/Operacao');
     }
 
     return (
@@ -85,9 +109,12 @@ export default function Saldo({ setOperationType }) {
                         <Operacao>
                             <div>
                                 <Data>{operacao.date}</Data>
-                                <Descricao>{operacao.description}</Descricao>
+                                <Descricao onClick={()=>{updateOperation(operacao._id,operacao.type)}}>{operacao.description}</Descricao>
                             </div>
-                            <Valor type={operacao.type}>{operacao.value.toFixed(2).replace('.', ',')}</Valor>
+                            <div>
+                                <Valor type={operacao.type}>{operacao.value.toFixed(2).replace('.', ',')}</Valor>
+                                <Delete onClick={()=>{deleteOperation(operacao._id)}}> x</Delete>
+                            </div>
                         </Operacao>))}
                     </div>
                     <Balanco>
@@ -206,6 +233,7 @@ const Data = styled.div`
 `
 const Descricao = styled.div`
     color: black;
+    cursor: pointer;
 `
 const Valor = styled.div`
     color: ${props => props.type};
@@ -219,4 +247,7 @@ const Balanco = styled.div`
 const DescricaoNegrito = styled.div`
     color: black;
     font-weight: 700;
+`
+const Delete = styled.div`
+    cursor: pointer;
 `

@@ -17,14 +17,25 @@ function postOperacao(operacao,config) {
     return promise;
 }
 
-function getOperacao(operacao) {
-    const promise = axios.get(`${Base_URL}/operacao`,operacao);
+function getOperacao(config) {
+    const promise = axios.get(`${Base_URL}/operacao`,config);
     return promise;  
 }
 
-function getUser(operacao) {
-    const promise = axios.get(`${Base_URL}/user`,operacao);
+function deleteOperacao(operacao,config) {
+    const promise = axios.post(`${Base_URL}/deloperacao`,operacao,config);
     return promise;  
 }
 
-export {postLogin,postCadastro,postOperacao,getOperacao,getUser}
+function updateOperacao(operacao,config) {
+    console.log(operacao)
+    const promise = axios.put(`${Base_URL}/operacao`,operacao,config);
+    return promise;  
+}
+
+function getUser(config) {
+    const promise = axios.get(`${Base_URL}/user`,config);
+    return promise;  
+}
+
+export {postLogin,postCadastro,postOperacao,getOperacao,getUser,deleteOperacao,updateOperacao}

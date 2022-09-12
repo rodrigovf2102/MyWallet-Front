@@ -1,24 +1,33 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { Form, Input, Entrar, Cadastrar } from '../Login/Login';
 import { Grid } from 'react-loader-spinner';
 import { useNavigate } from 'react-router-dom';
-import { postOperacao } from '../Services/MyWallet';
+import { postOperacao,updateOperacao } from '../Services/MyWallet';
 import UserContext from '../context/UserContext';
 
-export default function Operacao({ operationType }) {
+export default function Operacao({ operationInfo }) {
 
-    const [operacao, setOperacao] = useState({ valor: 0, descricao: "", tipo:operationType })
+    const [operacao, setOperacao] = useState({ valor: 0, descricao: "", tipo: operationInfo.type })
     const [disableForm, setDisableForm] = useState(false);
     const [corOperacao, setCorOperacao] = useState(1);
+    const [saveOrUpdate,setSaveOrUpdate] = useState("");
     const navigate = useNavigate();
-    const { tasks, setTasks } = useContext(UserContext);   
+    const { tasks, setTasks } = useContext(UserContext);
 
     const config = {
         headers: {
             "Authorization": `Bearer ${tasks}`
         }
     }
+
+    useEffect(()=>{
+        if(operationInfo.status === 'Editar'){
+            setSaveOrUpdate('Atualizar');
+        } else{
+            setSaveOrUpdate('Salvar');
+        }
+    },[])
 
     function operacaoInfo(event) {
         event.preventDefault();
@@ -27,9 +36,16 @@ export default function Operacao({ operationType }) {
     function addOperacao() {
         setCorOperacao(0.6);
         setDisableForm(true);
-        const promisse = postOperacao(operacao,config);
-        promisse.then(autorizado);
-        promisse.catch(desautorizado);
+        if (operationInfo.status === 'Editar') {
+            operacao.id = operationInfo.id;
+            const promisse = updateOperacao(operacao, config);
+            promisse.then(autorizado);
+            promisse.catch(desautorizado);
+        } else {
+            const promisse = postOperacao(operacao, config);
+            promisse.then(autorizado);
+            promisse.catch(desautorizado);
+        }
     }
 
     function desautorizado(error) {
@@ -38,7 +54,7 @@ export default function Operacao({ operationType }) {
         }
         else {
             alert(error.response.data);
-            if (error.response.data.indexOf('token')!==-1) {
+            if (error.response.data.indexOf('token') !== -1) {
                 navigate('/');
             }
         }
@@ -52,14 +68,14 @@ export default function Operacao({ operationType }) {
         navigate('/Saldo');
     }
 
-    function back(){
+    function back() {
         navigate('/Saldo');
     }
 
     return (
-        <Container>    
+        <Container>
             <Topo>
-                Nova {operationType}
+                {operationInfo.status} {operationInfo.type}
                 <ion-icon onClick={back} name="arrow-back-circle-outline"></ion-icon>
             </Topo>
             <Form onSubmit={operacaoInfo}>
@@ -68,7 +84,7 @@ export default function Operacao({ operationType }) {
                 <Input type="text" placeholder=' Descrição' onChange={event => setOperacao({ ...operacao, descricao: event.target.value })}
                     disabled={disableForm} required />
                 <Entrar cor={corOperacao} onClick={addOperacao} disabled={disableForm} type="submit">
-                    {disableForm ? <Grid color='white' radius="8" heigth="100" /> : `Salvar ${operationType}`}
+                    {disableForm ? <Grid color='white' radius="8" heigth="100" /> : `${saveOrUpdate} ${operationInfo.type}`}
                 </Entrar>
             </Form>
         </Container>

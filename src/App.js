@@ -10,7 +10,7 @@ import UserContext from './context/UserContext';
 
 export default function App() {
     const [tasks, setTasks] = useState({})
-    const [operationType, setOperationType] = useState('');
+    const [operationInfo, setOperationInfo] = useState({});
 
 
     return (
@@ -21,8 +21,8 @@ export default function App() {
                     <Routes>
                         <Route path={"/"} element={<Login />} />
                         <Route path={"/cadastro"} element={<Cadastro />} />
-                        <Route path={"/saldo"} element={<Saldo setOperationType={setOperationType} />} />
-                        <Route path={"/operacao"} element={<Operacao operationType={operationType} />} />
+                        <Route path={"/saldo"} element={<Saldo setOperationInfo={setOperationInfo} />} />
+                        <Route path={"/operacao"} element={<Operacao operationInfo={operationInfo} />} />
                     </Routes>
                 </UserContext.Provider>
             </BrowserRouter>

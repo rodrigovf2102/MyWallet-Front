@@ -1,4 +1,3 @@
-import styled from 'styled-components';
 import {Title, Container,Form,Input,Entrar,Cadastrar} from '../Login/Login';
 import { Grid } from 'react-loader-spinner';
 import { Link, useNavigate } from 'react-router-dom';
