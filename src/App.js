@@ -9,9 +9,9 @@ import UserContext from './context/UserContext';
 
 
 export default function App() {
+    
     const [tasks, setTasks] = useState({})
     const [operationInfo, setOperationInfo] = useState({});
-
 
     return (
         <>
